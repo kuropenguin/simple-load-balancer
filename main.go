@@ -59,3 +59,12 @@ func (b *Backend) IsAlive() (alive bool) {
 	b.mux.RUnlock()
 	return alive
 }
+
+func lb(w http.ResponseWriter, r *http.Request) {
+	peer := ServerPool.GetNextPeer()
+	if peer != nil {
+		peer.ReverseProxy.ServeHTTP(w, r)
+		return
+	}
+	http.Error(w, "Serve not available", http.StatusServiceUnavailable)
+}
