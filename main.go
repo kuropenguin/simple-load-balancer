@@ -103,3 +103,15 @@ func isBackendAlive(u *url.URL) bool {
 	_ = conn.Close()
 	return true
 }
+
+func (s *ServerPool) HealthCheck() {
+	for _, b := range s.backends {
+		status := "up"
+		alive := isBackendAlive(b.URL)
+		b.SetAlive(alive)
+		if !alive {
+			status = "down"
+		}
+		log.Printf("%s [%s]\n", b.URL, status)
+	}
+}
