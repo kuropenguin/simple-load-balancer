@@ -9,6 +9,11 @@ import (
 	"sync/atomic"
 )
 
+const (
+	Attempts int = iota
+	Retry
+)
+
 type Backend struct {
 	URL          *url.URL
 	Alive        bool
@@ -19,6 +24,13 @@ type Backend struct {
 type ServerPool struct {
 	backends []*Backend
 	current  uint64
+}
+
+func GetRetryFromContext(r *http.Request) int {
+	if retry, ok := r.Context().Value(Retry).(int); ok {
+		return retry
+	}
+	return 0
 }
 
 func main() {
