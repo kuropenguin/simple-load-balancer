@@ -2,11 +2,13 @@ package main
 
 import (
 	"log"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"sync"
 	"sync/atomic"
+	"time"
 )
 
 const (
@@ -87,4 +89,17 @@ func lb(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Error(w, "Serve not available", http.StatusServiceUnavailable)
+}
+
+func isBackendAlive(u *url.URL) bool {
+	timeout := 2 * time.Second
+	conn, err := net.DialTimeout("tcp", u.Host, timeout)
+
+	if err != nil {
+		log.Println("Site unreachable, error : ", err)
+		return false
+	}
+
+	_ = conn.Close()
+	return true
 }
