@@ -115,3 +115,15 @@ func (s *ServerPool) HealthCheck() {
 		log.Printf("%s [%s]\n", b.URL, status)
 	}
 }
+
+func healthCheck() {
+	t := time.NewTicker(time.Second * 20)
+	for {
+		select {
+		case <-t.C:
+			log.Println("Starting health check...")
+			ServerPool.HealthCheck()
+			log.Panicln("Health check compoleted")
+		}
+	}
+}
